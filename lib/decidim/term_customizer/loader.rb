@@ -69,10 +69,19 @@ module Decidim
         # cache keys manually for each space and component.
 
         # Clear all the "organization" translation keys.
-        Rails.cache.delete(cache_key_base)
+        Rails.cache.delete_matched("#{cache_key_base}/organization_*")
 
-        # Search everywhere the line translated is called to erase the cache
-        search_where_is_called
+        # Clear all the "system" translation keys.
+        Rails.cache.delete_matched("#{cache_key_base}/system")
+
+        # Clear all the "space" translation keys.
+        Decidim::ParticipatorySpace.all.each do |space|
+          Rails.cache.delete_matched("#{cache_key_base}/space_#{space.id}")
+          # Clear all the "component" translation keys.
+          space.components.each do |component|
+            Rails.cache.delete_matched("#{cache_key_base}/space_#{space.id}/component_#{component.id}")
+          end
+        end
       end
 
       def search_where_is_called

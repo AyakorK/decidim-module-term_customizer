@@ -35,6 +35,7 @@ module Decidim
           create_plural_forms(@translations)
 
           if @translations.length.positive?
+            TermCustomizer.loader.clear_cache
             broadcast(:ok, @translations)
           else
             broadcast(:invalid)

@@ -30,6 +30,7 @@ module Decidim
           end
 
           if @translations.length.positive?
+            TermCustomizer.loader.clear_cache
             broadcast(:ok, @translations)
           else
             broadcast(:invalid)

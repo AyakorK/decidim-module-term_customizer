@@ -71,19 +71,18 @@ module Decidim
         # Clear all the "organization" translation keys.
         Rails.cache.delete(cache_key_base)
 
+        # Search everywhere the line translated is called to erase the cache
+        search_where_is_called
+      end
+
+      def search_where_is_called
         # Iterate over the participatory spaces and their components to manually
         # clear the cached records for all of them.
-        Decidim.participatory_space_registry.manifests.each do |manifest|
-          manifest.model_class_name.constantize.all.each do |space|
-            Rails.cache.delete("#{cache_key_base}/space_#{space.id}")
-
-            next unless space.respond_to?(:components)
-
-            space.components.each do |component|
-              Rails.cache.delete(
-                "#{cache_key_base}/space_#{space.id}/component_#{component.id}"
-              )
-            end
+        # Search everywhere the line translated is called to erase the cache
+        Decidim::ParticipatorySpace.all.each do |space|
+          Rails.cache.delete("#{cache_key_base}/space_#{space.id}")
+          space.components.each do |component|
+            Rails.cache.delete("#{cache_key_base}/space_#{space.id}/component_#{component.id}")
           end
         end
       end
